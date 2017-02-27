@@ -457,6 +457,238 @@ func TestRandomCacheErasure_9_5(t *testing.T) {
 	}
 }
 
+func BenchmarkBasicEncode_14_10(b *testing.B) {
+	m := 24
+	k := 14
+	shardLength := 16776168
+	size := k * shardLength
+
+	code := NewCode(m, k, size)
+
+	source := make([]byte, size)
+	for i := range source {
+		source[i] = byte(rand.Int63() & 0xff) //0x62
+	}
+
+	b.SetBytes(int64(size))
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			code.Encode(source)
+		}
+	})
+}
+
+func BenchmarkBasicDecode_14_10(b *testing.B) {
+	m := 24
+	k := 14
+	shardLength := 16776168
+	size := k * shardLength
+
+	code := NewCode(m, k, size)
+
+	source := make([]byte, size)
+	for i := range source {
+		source[i] = byte(rand.Int63() & 0xff) //0x62
+	}
+
+	encoded := code.Encode(source)
+
+	b.SetBytes(int64(size))
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		errList := []byte{0, 2, 3, 4}
+
+		corrupted := corrupt(append(source, encoded...), errList, shardLength)
+
+		for pb.Next() {
+			recovered := code.Decode(corrupted, errList, false)
+
+			if !bytes.Equal(source, recovered) {
+				b.Error("Source was not sucessfully recovered with 4 errors")
+			}
+		}
+	})
+}
+
+func BenchmarkBasicCacheEncode_14_10(b *testing.B) {
+	m := 24
+	k := 14
+	shardLength := 16776168
+	size := k * shardLength
+
+	code := NewCode(m, k, size)
+
+	source := make([]byte, size)
+	for i := range source {
+		source[i] = byte(rand.Int63() & 0xff) //0x62
+	}
+
+	b.SetBytes(int64(size))
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			code.Encode(source)
+		}
+	})
+}
+
+func BenchmarkBasicCacheDecode_14_10(b *testing.B) {
+	m := 24
+	k := 14
+	shardLength := 16776168
+	size := k * shardLength
+
+	code := NewCode(m, k, size)
+
+	source := make([]byte, size)
+	for i := range source {
+		source[i] = byte(rand.Int63() & 0xff) //0x62
+	}
+
+	encoded := code.Encode(source)
+
+	b.SetBytes(int64(size))
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		errList := []byte{0, 2, 3, 4}
+
+		corrupted := corrupt(append(source, encoded...), errList, shardLength)
+
+		for pb.Next() {
+			recovered := code.Decode(corrupted, errList, true)
+
+			if !bytes.Equal(source, recovered) {
+				b.Error("Source was not sucessfully recovered with 4 errors")
+			}
+		}
+	})
+}
+
+func BenchmarkBasicEncode_28_4(b *testing.B) {
+	m := 32
+	k := 28
+	shardLength := 16776168
+	size := k * shardLength
+
+	code := NewCode(m, k, size)
+
+	source := make([]byte, size)
+	for i := range source {
+		source[i] = byte(rand.Int63() & 0xff) //0x62
+	}
+
+	b.SetBytes(int64(size))
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			code.Encode(source)
+		}
+	})
+}
+
+func BenchmarkBasicDecode_28_4(b *testing.B) {
+	m := 32
+	k := 28
+	shardLength := 16776168
+	size := k * shardLength
+
+	code := NewCode(m, k, size)
+
+	source := make([]byte, size)
+	for i := range source {
+		source[i] = byte(rand.Int63() & 0xff) //0x62
+	}
+
+	encoded := code.Encode(source)
+
+	b.SetBytes(int64(size))
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		errList := []byte{0, 2, 3, 4}
+
+		corrupted := corrupt(append(source, encoded...), errList, shardLength)
+
+		for pb.Next() {
+			recovered := code.Decode(corrupted, errList, false)
+
+			if !bytes.Equal(source, recovered) {
+				b.Error("Source was not sucessfully recovered with 4 errors")
+			}
+		}
+	})
+}
+
+func BenchmarkBasicCacheEncode_28_4(b *testing.B) {
+	m := 32
+	k := 28
+	shardLength := 16776168
+	size := k * shardLength
+
+	code := NewCode(m, k, size)
+
+	source := make([]byte, size)
+	for i := range source {
+		source[i] = byte(rand.Int63() & 0xff) //0x62
+	}
+
+	b.SetBytes(int64(size))
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			code.Encode(source)
+		}
+	})
+}
+
+func BenchmarkBasicCacheDecode_28_4(b *testing.B) {
+	m := 32
+	k := 28
+	shardLength := 16776168
+	size := k * shardLength
+
+	code := NewCode(m, k, size)
+
+	source := make([]byte, size)
+	for i := range source {
+		source[i] = byte(rand.Int63() & 0xff) //0x62
+	}
+
+	encoded := code.Encode(source)
+
+	b.SetBytes(int64(size))
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		errList := []byte{0, 2, 3, 4}
+
+		corrupted := corrupt(append(source, encoded...), errList, shardLength)
+
+		for pb.Next() {
+			recovered := code.Decode(corrupted, errList, true)
+
+			if !bytes.Equal(source, recovered) {
+				b.Error("Source was not sucessfully recovered with 4 errors")
+			}
+		}
+	})
+}
+
 func BenchmarkBasicEncode_12_8(b *testing.B) {
 	m := 12
 	k := 8
